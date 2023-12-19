@@ -2,3 +2,6 @@
 Temp
 Logs
 UnityNodeGraphProcessor.sln
+.idea
+obj
+*.csproj
