@@ -1,12 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
-using GraphProcessor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class AllGraphWindow : BaseGraphWindow
 {
-    protected BaseGraphView		graphView;
-    
+
     protected override void InitializeWindow(BaseGraph graph)
     {
         titleContent = new GUIContent("All Graph");
@@ -18,6 +15,6 @@ public class AllGraphWindow : BaseGraphWindow
             //graphView.Add(toolbarView);
         }
 
-        //rootView.Add(graphView);
+        rootView.Add(graphView);
     }
 }
