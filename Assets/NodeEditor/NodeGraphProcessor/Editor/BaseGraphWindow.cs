@@ -24,6 +24,8 @@ namespace GraphProcessor
         
         protected virtual void OnEnable()
         {
+            NodeProvider.OnCreateNodeProvider();
+            
             InitializeRootView();
             
             graphLoaded = baseGraph => { baseGraph?.OnGraphEnable(); }; 
@@ -34,7 +36,13 @@ namespace GraphProcessor
         {
             if (graph != null && graphView != null)
             { 
-                graphUnloaded?.Invoke(this.graph);  
+                
+                graphView.SaveGraphToDisk();
+                
+                graphUnloaded?.Invoke(this.graph);
+
+                NodeProvider.OnResetNodeProvider();
+
             }
         }
 
