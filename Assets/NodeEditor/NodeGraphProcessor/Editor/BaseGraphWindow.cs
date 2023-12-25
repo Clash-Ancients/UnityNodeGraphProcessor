@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -53,12 +54,17 @@ namespace GraphProcessor
             {
                 rootView.Remove(graphView);
             }
-            
+
             InitializeWindow(graph);
-            
+
             rootView.Add(graphView);
             
+            graphView = rootView.Children().FirstOrDefault(e => e is BaseGraphView) as BaseGraphView;
             
+            if (graphView == null) 
+                return;
+            
+            graphView.Initialize(graph);
         }
         
         void InitializeRootView()
