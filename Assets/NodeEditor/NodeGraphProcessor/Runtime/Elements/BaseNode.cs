@@ -15,6 +15,9 @@ namespace GraphProcessor
     {
         private BaseGraph graph;
         
+        [HideInInspector]
+        public string nodeCustomName = null; // The name of the node in case it was renamed by a user
+        
         //id
         [HideInInspector]
         public string				GUID;
@@ -80,6 +83,10 @@ namespace GraphProcessor
         }
         
         public virtual void	OnNodeCreated() => GUID = Guid.NewGuid().ToString();
+        
+        public void SetCustomName(string customName) => nodeCustomName = customName;
+        
+        public string GetCustomName() => String.IsNullOrEmpty(nodeCustomName) ? name : nodeCustomName; 
     }
 
 }

@@ -54,7 +54,7 @@ namespace GraphProcessor
                 graphUnloaded?.Invoke(graph);
             }
             
-            graphLoaded?.Invoke(graph);
+            graphLoaded?.Invoke(_graph);
 
             graph = _graph;
             

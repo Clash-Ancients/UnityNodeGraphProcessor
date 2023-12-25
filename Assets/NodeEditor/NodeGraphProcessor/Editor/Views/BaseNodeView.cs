@@ -21,8 +21,13 @@ namespace GraphProcessor
         
         public BaseGraphView					owner { private set; get; }
         
+        [HideInInspector]
+        public VisualElement 					controlsContainer;
+        protected VisualElement					rightTitleContainer;
         private List<Node> selectedNodes = new List<Node>();
 
+        readonly string							baseNodeStyle = "GraphProcessorStyles/BaseNodeView";
+        
         private bool initializing = false;
         
         public void Initialize(BaseGraphView _owner, BaseNode node)
@@ -31,6 +36,8 @@ namespace GraphProcessor
 
             owner = _owner;
 
+            styleSheets.Add(Resources.Load<StyleSheet>(baseNodeStyle));
+            
             initializing = true;
             
             InitializeView();
@@ -38,9 +45,25 @@ namespace GraphProcessor
 
         void InitializeView()
         {
+	        
+	        controlsContainer = new VisualElement{ name = "controls" };
+	        controlsContainer.AddToClassList("NodeControls");
+	        mainContainer.Add(controlsContainer);
+	        
+	        rightTitleContainer = new VisualElement{ name = "RightTitleContainer" };
+	        titleContainer.Add(rightTitleContainer);
+	        titleContainer.Insert(0, new VisualElement(){ name = "NodeIcon_Action" });
+	        
+	        UpdateTitle();
+	        
 	        SetPosition(nodeTarget.position);
         }
-        
+
+        private void UpdateTitle()
+        {
+	        title = (nodeTarget.GetCustomName() == null) ? nodeTarget.GetType().Name : nodeTarget.GetCustomName();
+        }
+
         public override void SetPosition(Rect newPos)
         {
 	        //if (initializing || !nodeTarget.isLocked)
