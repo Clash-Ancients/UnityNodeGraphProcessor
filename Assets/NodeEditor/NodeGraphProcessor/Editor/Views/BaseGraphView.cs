@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
@@ -14,7 +13,7 @@ namespace GraphProcessor
         
         public BaseGraph							graph;
         CreateNodeMenuWindow						createNodeMenu;
-        public SerializedObject		serializedGraph { get; private set; }
+        //public SerializedObject		serializedGraph { get; private set; }
         
         public List< BaseNodeView >					nodeViews = new List< BaseNodeView >();
         
@@ -27,6 +26,9 @@ namespace GraphProcessor
 
         public BaseGraphView(EditorWindow window)
         {
+            
+            graphViewChanged = GraphViewChangedCallback;
+            
             this.AddManipulator(new ContentDragger());
             this.AddManipulator(new SelectionDragger());
             this.AddManipulator(new RectangleSelector());
@@ -39,10 +41,13 @@ namespace GraphProcessor
             createNodeMenu.Initialize(this, window);
         }
 
+       
+
         public void Initialize(BaseGraph _graph)
         {
             graph = _graph;
             InitializeGraphView();
+            InitializeNodeViews();
         }
 
         private void InitializeGraphView()
@@ -51,6 +56,16 @@ namespace GraphProcessor
             viewTransform.position = graph.position;
             viewTransform.scale = graph.scale;
             nodeCreationRequest = (c) => SearchWindow.Open(new SearchWindowContext(c.screenMousePosition), createNodeMenu);
+        }
+        
+        void InitializeNodeViews()
+        {
+            graph.nodes.RemoveAll(n => n == null);
+
+            foreach (var node in graph.nodes)
+            {
+                var v = AddNodeView(node);
+            }
         }
         
         public virtual IEnumerable<(string path, Type type)> FilterCreateNodeMenuEntries()
@@ -73,6 +88,47 @@ namespace GraphProcessor
         void GraphChangesCallback(GraphChanges changes)
         {
             
+        }
+        
+        private GraphViewChange GraphViewChangedCallback(GraphViewChange changes)
+        {
+            if (null != changes.elementsToRemove)
+            {
+                changes.elementsToRemove.Sort((e1, e2) => {
+                    int GetPriority(GraphElement e)
+                    {
+                        if (e is BaseNodeView)
+                            return 0;
+                        else
+                            return 1;
+                    }
+                    return GetPriority(e1).CompareTo(GetPriority(e2));
+                });
+                
+                //Handle ourselves the edge and node remove
+                changes.elementsToRemove.RemoveAll(e => {
+
+                    switch (e)
+                    {
+            
+                        case BaseNodeView nodeView:
+                           
+                            graph.RemoveNode(nodeView.nodeTarget);
+                            UpdateSerializedProperties();
+                            RemoveElement(nodeView);
+                            
+                            return true;
+   
+                    }
+
+                    return false;
+                });
+                
+            }
+                
+
+            
+            return changes;
         }
         
         public BaseNodeView AddNode(BaseNode node)
@@ -111,7 +167,7 @@ namespace GraphProcessor
 
         void UpdateSerializedProperties()
         {
-            serializedGraph = new SerializedObject(graph);
+            //serializedGraph = new SerializedObject(graph);
         }
         
     }

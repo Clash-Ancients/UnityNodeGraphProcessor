@@ -45,6 +45,17 @@ namespace GraphProcessor
             
         }
         
+        public void RemoveNode(BaseNode node)
+        {
+            
+            nodesPerGUID.Remove(node.GUID);
+
+            nodes.Remove(node);
+
+            //onGraphChanges?.Invoke(new GraphChanges{ removedNode = node });
+        }
+
+        
         public BaseNode AddNode(BaseNode node)
         {
             nodesPerGUID[node.GUID] = node;
