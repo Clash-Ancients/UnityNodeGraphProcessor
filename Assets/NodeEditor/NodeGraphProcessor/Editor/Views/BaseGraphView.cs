@@ -165,6 +165,11 @@ namespace GraphProcessor
 
             return baseNodeView;
         }
+
+        public EdgeView CreateEdgeView()
+        {
+            return new EdgeView();
+        }
         
     }
 }

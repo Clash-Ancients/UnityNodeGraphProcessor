@@ -102,22 +102,21 @@ namespace GraphProcessor
 
 		        // If we don't have a custom behavior on the node, we just have to create a simple port
 		        AddPort(nodeField.input, nodeField.fieldName, new PortData { acceptMultipleEdges = nodeField.isMultiple, displayName = nodeField.name, tooltip = nodeField.tooltip, vertical = nodeField.vertical, showPortIcon = nodeField.showPortIcon, portIconName = nodeField.portIconName});
-
+				
 	        }
         }
         
         public void AddPort(bool input, string fieldName, PortData portData)
         {
 	        // Fixup port data info if needed:
-	        if (portData.displayType == null)
-		        portData.displayType = nodeFields[fieldName].info.FieldType;
+	        portData.displayType ??= nodeFields[fieldName].info.FieldType;
 
 	        if (input)
 		        inputPorts.Add(new NodePort(this, fieldName, portData));
 	        else
 		        outputPorts.Add(new NodePort(this, fieldName, portData));
         }
-
+		
         #region ports
 
         [NonSerialized]

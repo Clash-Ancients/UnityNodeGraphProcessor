@@ -7,6 +7,9 @@ namespace GraphProcessor
     
     public class PortView : Port
     {
+        
+        public BaseNodeView     	owner { get; private set; }
+        
         public static PortView CreatePortView(Direction direction, FieldInfo fieldInfo, PortData portData,
             BaseEdgeConnectorListener edgeConnectorListener)
         {
@@ -22,6 +25,9 @@ namespace GraphProcessor
 
         public virtual void Initialize(BaseNodeView nodeView, string name)
         {
+            
+            this.owner = nodeView;
+            
             if (name != null)
                 portName = name;
         }
