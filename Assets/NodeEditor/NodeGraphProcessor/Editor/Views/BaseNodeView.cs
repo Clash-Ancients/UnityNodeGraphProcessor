@@ -24,6 +24,7 @@ namespace GraphProcessor
         protected VisualElement					rightTitleContainer;
         protected VisualElement					topPortContainer;
         protected VisualElement					bottomPortContainer;
+        private VisualElement 					inputContainerElement;
         private List<Node> selectedNodes = new List<Node>();
 
         readonly string							baseNodeStyle = "GraphProcessorStyles/BaseNodeView";
@@ -134,7 +135,7 @@ namespace GraphProcessor
         public override void SetPosition(Rect newPos)
         {
 	        //if (initializing || !nodeTarget.isLocked)
-	        if (initializing)
+	        if (initializing || !nodeTarget.isLocked)
 	        {
 		        base.SetPosition(newPos);
 

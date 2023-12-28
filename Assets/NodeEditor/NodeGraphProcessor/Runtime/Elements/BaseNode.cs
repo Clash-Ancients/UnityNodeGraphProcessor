@@ -55,6 +55,12 @@ namespace GraphProcessor
         [HideInInspector]
         public string				GUID;
         
+        
+        public virtual bool         isLocked => nodeLock; 
+        
+        [HideInInspector]
+        public bool                 nodeLock = false;
+        
         /// <summary>
         /// Container of input ports
         /// </summary>
@@ -79,6 +85,11 @@ namespace GraphProcessor
             inputPorts = new NodeInputPortContainer(this);
             outputPorts = new NodeOutputPortContainer(this);
 
+            if (null == nodeFields)
+            {
+	            nodeFields = new Dictionary< string, NodeFieldInformation >();
+            }
+            
             InitializeInOutDatas();
             InitializePorts();
         }

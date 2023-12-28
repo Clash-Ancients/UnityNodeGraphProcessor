@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -42,7 +43,38 @@ namespace GraphProcessor
 
         public void OnGraphEnable()
         {
-            
+            InitializeGraphElements();
+        }
+        
+        void InitializeGraphElements()
+        {
+            // Sanitize the element lists (it's possible that nodes are null if their full class name have changed)
+            // If you rename / change the assembly of a node or parameter, please use the MovedFrom() attribute to avoid breaking the graph.
+            nodes.RemoveAll(n => n == null);
+            //exposedParameters.RemoveAll(e => e == null);
+
+            foreach (var node in nodes.ToList())
+            {
+                nodesPerGUID[node.GUID] = node;
+                node.Initialize(this);
+            }
+
+            // foreach (var edge in edges.ToList())
+            // {
+            //     edge.Deserialize();
+            //     edgesPerGUID[edge.GUID] = edge;
+            //
+            //     // Sanity check for the edge:
+            //     if (edge.inputPort == null || edge.outputPort == null)
+            //     {
+            //         Disconnect(edge.GUID);
+            //         continue;
+            //     }
+            //
+            //     // Add the edge to the non-serialized port data
+            //     edge.inputPort.owner.OnEdgeConnected(edge);
+            //     edge.outputPort.owner.OnEdgeConnected(edge);
+            // }
         }
         
         public void RemoveNode(BaseNode node)
