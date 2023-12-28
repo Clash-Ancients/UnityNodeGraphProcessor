@@ -10,18 +10,6 @@ namespace GraphProcessor
 {
     public class NodeProvider
     {
-        public struct PortDescription
-        {
-            public Type nodeType;
-            public Type portType;
-            public bool isInput;
-            public string portFieldName;
-            public string portIdentifier;
-            public string portDisplayName;
-        }
-        
-        static Dictionary< Type, Type >			nodeViewPerType = new Dictionary< Type, Type >();
-        
         private static NodeProvider _mInst;
         public static NodeProvider Inst => _mInst;
 
@@ -44,21 +32,19 @@ namespace GraphProcessor
         {
             _mInst = null;
         }
-        public class NodeDescriptions
-        {
-            public Dictionary< string, Type >		nodePerMenuTitle = new Dictionary< string, Type >();
-            public List< Type >						slotTypes = new List< Type >();
-            public List< PortDescription >			nodeCreatePortDescription = new List<PortDescription>();
-        }
         
-        NodeDescriptions							genericNodes = new NodeDescriptions();
-
-        public NodeProvider()
+        NodeProvider()
         {
             BuildNodeViewCache();
             BuildGenericNodeCache();
         }
 
+        #region link node and node view
+        Dictionary< Type, Type >			nodeViewPerType = new Dictionary< Type, Type >();
+        /// <summary>
+        /// function: link node and nodeview
+        /// example: CircleRadians link to CircleRadiansView
+        /// </summary>
         void BuildNodeViewCache()
         {
             foreach (var nodeViewType in TypeCache.GetTypesDerivedFrom<BaseNodeView>())
@@ -73,14 +59,57 @@ namespace GraphProcessor
             }
         }
         
+        public Type GetNodeViewTypeFromType(Type nodeType)
+        {
+            Type view;
+            
+            if (nodeViewPerType.TryGetValue(nodeType, out view))
+                return view;
+
+            Type baseType = null;
+
+            // Allow for inheritance in node views: multiple C# node using the same view
+            foreach (var type in nodeViewPerType)
+            {
+                // Find a view (not first fitted view) of nodeType
+                if (nodeType.IsSubclassOf(type.Key) && (baseType == null || type.Value.IsSubclassOf(baseType)))
+                    baseType = type.Value;
+            }
+
+            if (baseType != null)
+                return baseType;
+
+            return view;
+        }
+        #endregion
+        
+        #region cache generic node
+        
+        public struct PortDescription
+        {
+            public Type nodeType;
+            public Type portType;
+            public bool isInput;
+            public string portFieldName;
+            public string portIdentifier;
+            public string portDisplayName;
+        }
+        
+        public class NodeDescriptions
+        {
+            public Dictionary< string, Type >		nodePerMenuTitle = new Dictionary< string, Type >();
+            public List< PortDescription >			nodeCreatePortDescription = new List<PortDescription>();
+        }
+        
+        NodeDescriptions							genericNodes = new NodeDescriptions();
         private  void BuildGenericNodeCache()
         {
             foreach (var nodeType in TypeCache.GetTypesDerivedFrom<BaseNode>())
             {
                 if (!IsNodeAccessibleFromMenu(nodeType))
                     continue;
-                BuildCacheForNode(nodeType, genericNodes);
                 
+                BuildCacheForNode(nodeType, genericNodes);
             }
         }
 
@@ -93,22 +122,29 @@ namespace GraphProcessor
                 foreach (var attr in attrs)
                     targetDescription.nodePerMenuTitle[attr.menuTitle] = nodeType;
             }
-
-            foreach (var field in nodeType.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
-            {
-                if (field.GetCustomAttribute<HideInInspector>() == null && field.GetCustomAttributes().Any(c => c is InputAttribute || c is OutputAttribute))
-                    targetDescription.slotTypes.Add(field.FieldType);
-            }
             
             ProvideNodePortCreationDescription(nodeType, targetDescription, graph);
         }
+
+        public  IEnumerable<(string path, Type type)>	GetNodeMenuEntries(BaseGraph graph = null)
+        {
+            foreach (var node in genericNodes.nodePerMenuTitle)
+                yield return (node.Key, node.Value);
+            //
+            // if (graph != null && specificNodeDescriptions.TryGetValue(graph, out var specificNodes))
+            // {
+            //     foreach (var node in specificNodes.nodePerMenuTitle)
+            //         yield return (node.Key, node.Value);
+            // }
+        }
         
-        FieldInfo SetGraph = typeof(BaseNode).GetField("graph", BindingFlags.NonPublic | BindingFlags.Instance);
+        readonly FieldInfo SetGraph = typeof(BaseNode).GetField("graph", BindingFlags.NonPublic | BindingFlags.Instance);
         
         void ProvideNodePortCreationDescription(Type nodeType, NodeDescriptions targetDescription, BaseGraph graph = null)
         {
             var node = Activator.CreateInstance(nodeType) as BaseNode;
             try {
+                
                 SetGraph.SetValue(node, graph);
                 // node.InitializePorts();
                 // node.UpdateAllPorts();
@@ -135,29 +171,6 @@ namespace GraphProcessor
             //     });
             // }
         }
-
-        public Type GetNodeViewTypeFromType(Type nodeType)
-        {
-            Type view;
-
-            if (nodeViewPerType.TryGetValue(nodeType, out view))
-                return view;
-
-            Type baseType = null;
-
-            // Allow for inheritance in node views: multiple C# node using the same view
-            foreach (var type in nodeViewPerType)
-            {
-                // Find a view (not first fitted view) of nodeType
-                if (nodeType.IsSubclassOf(type.Key) && (baseType == null || type.Value.IsSubclassOf(baseType)))
-                    baseType = type.Value;
-            }
-
-            if (baseType != null)
-                return baseType;
-
-            return view;
-        }
         
         bool IsNodeAccessibleFromMenu(Type nodeType)
         {
@@ -167,16 +180,6 @@ namespace GraphProcessor
             return attributes.Any();
         }
 
-        public  IEnumerable<(string path, Type type)>	GetNodeMenuEntries(BaseGraph graph = null)
-        {
-            foreach (var node in genericNodes.nodePerMenuTitle)
-                yield return (node.Key, node.Value);
-            //
-            // if (graph != null && specificNodeDescriptions.TryGetValue(graph, out var specificNodes))
-            // {
-            //     foreach (var node in specificNodes.nodePerMenuTitle)
-            //         yield return (node.Key, node.Value);
-            // }
-        }
+        #endregion
     }
 }

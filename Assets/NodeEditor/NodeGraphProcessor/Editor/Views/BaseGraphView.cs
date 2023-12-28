@@ -7,23 +7,20 @@ using UnityEngine.UIElements;
 
 namespace GraphProcessor
 {
-    
     public class BaseGraphView : GraphView, IDisposable
     {
         
         public BaseGraph							graph;
+        
         CreateNodeMenuWindow						createNodeMenu;
-        //public SerializedObject		serializedGraph { get; private set; }
         
         public List< BaseNodeView >					nodeViews = new List< BaseNodeView >();
         
         public Dictionary< BaseNode, BaseNodeView >	nodeViewsPerNode = new Dictionary< BaseNode, BaseNodeView >();
         
-        public void Dispose()
-        {
-            
-        }
-
+        public BaseEdgeConnectorListener			connectorListener;
+        
+        #region 構造 / 析構
         public BaseGraphView(EditorWindow window)
         {
             
@@ -40,19 +37,30 @@ namespace GraphProcessor
             createNodeMenu = ScriptableObject.CreateInstance< CreateNodeMenuWindow >();
             createNodeMenu.Initialize(this, window);
         }
-
-       
-
+        
+        public void Dispose()
+        {
+            
+        }
+        #endregion
+        
+        #region 初始化
         public void Initialize(BaseGraph _graph)
         {
             graph = _graph;
+            
+            connectorListener = CreateEdgeConnectorListener();
+            
             InitializeGraphView();
             InitializeNodeViews();
         }
 
+        protected virtual BaseEdgeConnectorListener CreateEdgeConnectorListener()
+            => new BaseEdgeConnectorListener(this);
+        
         private void InitializeGraphView()
         {
-            graph.onGraphChanges += GraphChangesCallback;
+            
             viewTransform.position = graph.position;
             viewTransform.scale = graph.scale;
             nodeCreationRequest = (c) => SearchWindow.Open(new SearchWindowContext(c.screenMousePosition), createNodeMenu);
@@ -67,7 +75,9 @@ namespace GraphProcessor
                 var v = AddNodeView(node);
             }
         }
+        #endregion
         
+        //过滤basenode menu
         public virtual IEnumerable<(string path, Type type)> FilterCreateNodeMenuEntries()
         {
             // By default we don't filter anything
@@ -77,6 +87,7 @@ namespace GraphProcessor
             // TODO: add exposed properties to this list
         }
         
+        //保存到本地
         public void SaveGraphToDisk()
         {
             if (graph == null)
@@ -84,12 +95,8 @@ namespace GraphProcessor
 
             GraphCreateAndSaveHelper.SaveGraphToDisk(graph);
         }
-
-        void GraphChangesCallback(GraphChanges changes)
-        {
-            
-        }
         
+        //删除节点
         private GraphViewChange GraphViewChangedCallback(GraphViewChange changes)
         {
             if (null != changes.elementsToRemove)
@@ -110,34 +117,26 @@ namespace GraphProcessor
 
                     switch (e)
                     {
-            
                         case BaseNodeView nodeView:
-                           
                             graph.RemoveNode(nodeView.nodeTarget);
-                            UpdateSerializedProperties();
                             RemoveElement(nodeView);
-                            
                             return true;
-   
                     }
 
                     return false;
                 });
                 
             }
-                
-
             
             return changes;
         }
         
+        //添加节点
         public BaseNodeView AddNode(BaseNode node)
         {
             // This will initialize the node using the graph instance
             graph.AddNode(node);
-
-            UpdateSerializedProperties();
-
+            
             var view = AddNodeView(node);
 
             // Call create after the node have been initialized
@@ -147,8 +146,8 @@ namespace GraphProcessor
 
             return view;
         }
-        
-        public BaseNodeView AddNodeView(BaseNode node)
+
+        private BaseNodeView AddNodeView(BaseNode node)
         {
             var viewType = NodeProvider.Inst.GetNodeViewTypeFromType(node.GetType());
 
@@ -156,18 +155,15 @@ namespace GraphProcessor
                 viewType = typeof(BaseNodeView);
 
             var baseNodeView = Activator.CreateInstance(viewType) as BaseNodeView;
-            baseNodeView.Initialize(this, node);
+            
+            baseNodeView?.Initialize(this, node);
+            
             AddElement(baseNodeView);
 
             nodeViews.Add(baseNodeView);
             nodeViewsPerNode[node] = baseNodeView;
 
             return baseNodeView;
-        }
-
-        void UpdateSerializedProperties()
-        {
-            //serializedGraph = new SerializedObject(graph);
         }
         
     }

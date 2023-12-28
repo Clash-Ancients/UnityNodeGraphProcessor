@@ -16,7 +16,7 @@ public class CircleRadiansView : BaseNodeView
         listContainer = new VisualElement();
         // Create your fields using node's variables and add them to the controlsContainer
 
-        // controlsContainer.Add(listContainer);
+        controlsContainer.Add(listContainer);
         // onPortConnected += OnPortUpdate;
         // onPortDisconnected += OnPortUpdate;
 

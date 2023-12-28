@@ -8,7 +8,6 @@ using UnityEngine.UIElements;
 
 namespace GraphProcessor
 {
-    
     public abstract class BaseGraphWindow : EditorWindow
     {
         protected BaseGraphView		graphView;
@@ -31,21 +30,7 @@ namespace GraphProcessor
             graphLoaded = baseGraph => { baseGraph?.OnGraphEnable(); }; 
             graphUnloaded = baseGraph => { baseGraph?.OnGraphDisable(); };
         }
-
-        protected void OnDisable()
-        {
-            if (graph != null && graphView != null)
-            { 
-                
-                graphView.SaveGraphToDisk();
-                
-                graphUnloaded?.Invoke(this.graph);
-
-                NodeProvider.OnResetNodeProvider();
-
-            }
-        }
-
+        
         public void InitializeGraph(BaseGraph _graph)
         {
             if (null != graph && graph != _graph)
@@ -85,6 +70,20 @@ namespace GraphProcessor
         }
         
         protected abstract void	InitializeWindow(BaseGraph graph);
-    }
+        
+        
+        protected void OnDisable()
+        {
+            if (graph != null && graphView != null)
+            { 
+                
+                graphView.SaveGraphToDisk();
+                
+                graphUnloaded?.Invoke(this.graph);
 
+                NodeProvider.OnResetNodeProvider();
+
+            }
+        }
+    }
 }
