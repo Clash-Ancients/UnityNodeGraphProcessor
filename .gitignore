@@ -5,3 +5,4 @@ UnityNodeGraphProcessor.sln
 .idea
 obj
 *.csproj
+.DS_Store
