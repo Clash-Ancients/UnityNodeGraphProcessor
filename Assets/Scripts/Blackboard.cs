@@ -77,15 +77,7 @@ namespace NPBehave
                 Set(key, value);
             }
         }
-
-        public void Set(string key)
-        {
-            if (!Isset(key))
-            {
-                Set(key, null);
-            }
-        }
-
+        
         public void Set(string key, object value)
         {
             if (this.parentBlackboard != null && this.parentBlackboard.Isset(key))
@@ -111,46 +103,7 @@ namespace NPBehave
                 }
             }
         }
-
-        public void Unset(string key)
-        {
-            if (this.data.ContainsKey(key))
-            {
-                this.data.Remove(key);
-                this.notifications.Add(new Notification(key, Type.REMOVE, null));
-                this.clock.AddTimer(0f, 0, NotifiyObservers);
-            }
-        }
-
-        [System.Obsolete("Use Get<T> instead")]
-        public bool GetBool(string key)
-        {
-            return Get<bool>(key);
-        }
-
-        [System.Obsolete("Use Get<T> instead - WARNING: return value for non-existant key will be 0.0f instead of float.NaN")]
-        public float GetFloat(string key)
-        {
-            object result = Get(key);
-            if (result == null)
-            {
-                return float.NaN;
-            }
-            return (float)Get(key);
-        }
-
-        [System.Obsolete("Use Get<T> instead")]
-        public Vector3 GetVector3(string key)
-        {
-            return Get<Vector3>(key);
-        }
-
-        [System.Obsolete("Use Get<T> instead")]
-        public int GetInt(string key)
-        {
-            return Get<int>(key);
-        }
-
+        
         public T Get<T>(string key)
         {
             object result = Get(key);
@@ -181,7 +134,7 @@ namespace NPBehave
         {
             return this.data.ContainsKey(key) || (this.parentBlackboard != null && this.parentBlackboard.Isset(key));
         }
-
+        
         public void AddObserver(string key, System.Action<Type, object> observer)
         {
             List<System.Action<Type, object>> observers = GetObserverList(this.observers, key);
@@ -239,40 +192,6 @@ namespace NPBehave
                 }
             }
         }
-
-
-#if UNITY_EDITOR
-        public List<string> Keys
-        {
-            get
-            {
-                if (this.parentBlackboard != null)
-                {
-                    List<string> keys = this.parentBlackboard.Keys;
-                    keys.AddRange(data.Keys);
-                    return keys;
-                }
-                else
-                {
-                    return new List<string>(data.Keys);
-                }
-            }
-        }
-
-        public int NumObservers
-        {
-            get
-            {
-                int count = 0;
-                foreach (string key in observers.Keys)
-                {
-                    count += observers[key].Count;
-                }
-                return count;
-            }
-        }
-#endif
-
 
         private void NotifiyObservers()
         {
@@ -340,6 +259,85 @@ namespace NPBehave
                 target[key] = observers;
             }
             return observers;
+        }
+        
+#if UNITY_EDITOR
+        public List<string> Keys
+        {
+            get
+            {
+                if (this.parentBlackboard != null)
+                {
+                    List<string> keys = this.parentBlackboard.Keys;
+                    keys.AddRange(data.Keys);
+                    return keys;
+                }
+                else
+                {
+                    return new List<string>(data.Keys);
+                }
+            }
+        }
+
+        public int NumObservers
+        {
+            get
+            {
+                int count = 0;
+                foreach (string key in observers.Keys)
+                {
+                    count += observers[key].Count;
+                }
+                return count;
+            }
+        }
+#endif
+
+        
+        [System.Obsolete("Use Get<T> instead")]
+        public bool GetBool(string key)
+        {
+            return Get<bool>(key);
+        }
+
+        
+        [System.Obsolete("Use Get<T> instead")]
+        public Vector3 GetVector3(string key)
+        {
+            return Get<Vector3>(key);
+        }
+
+        [System.Obsolete("Use Get<T> instead")]
+        public int GetInt(string key)
+        {
+            return Get<int>(key);
+        }
+        public void Unset(string key)
+        {
+            if (this.data.ContainsKey(key))
+            {
+                this.data.Remove(key);
+                this.notifications.Add(new Notification(key, Type.REMOVE, null));
+                this.clock.AddTimer(0f, 0, NotifiyObservers);
+            }
+        }
+        public void Set(string key)
+        {
+            if (!Isset(key))
+            {
+                Set(key, null);
+            }
+        }
+        
+        [System.Obsolete("Use Get<T> instead - WARNING: return value for non-existant key will be 0.0f instead of float.NaN")]
+        public float GetFloat(string key)
+        {
+            object result = Get(key);
+            if (result == null)
+            {
+                return float.NaN;
+            }
+            return (float)Get(key);
         }
     }
 }
