@@ -3,7 +3,6 @@ using UnityEngine.Assertions;
 
 namespace NPBehave
 {
-
     public class Clock
     {
         private List<System.Action> updateObservers = new List<System.Action>();
@@ -97,6 +96,7 @@ namespace NPBehave
                 {
                     this.removeTimers.Add(action);
                 }
+                
                 if (this.addTimers.ContainsKey(action))
                 {
                     Assert.IsTrue(this.addTimers[action].used);
@@ -213,7 +213,7 @@ namespace NPBehave
                 {
                     continue;
                 }
-
+                
 				Timer timer = timers[callback];
                 if (timer.scheduledTime <= this.elapsedTime)
                 {

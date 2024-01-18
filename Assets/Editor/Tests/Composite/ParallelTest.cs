@@ -264,7 +264,7 @@ namespace NPBehave
             MockNode secondChild = new MockNode();
             Parallel sut = new Parallel(successPolicy, failurePolicy, firstChild, secondChild);
             TestRoot behaviorTree = CreateBehaviorTree(sut);
-
+            
             behaviorTree.Start();
             firstChild.Finish(false);
             sut.StopLowerPriorityChildrenForChild(firstChild, true);

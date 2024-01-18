@@ -49,8 +49,11 @@ namespace NPBehave
             lastDestination = Vector3.zero;
             lastDistance = 99999999.0f;
             failedChecks = 0;
-
+            
+            //数据变化
             Blackboard.AddObserver(blackboardKey, onBlackboardValueChanged);
+            
+            //定时更新
             Clock.AddTimer(updateFrequency, updateVariance, -1, onUpdateTimer);
 
             moveToBlackboardKey();
@@ -70,7 +73,7 @@ namespace NPBehave
         {
             moveToBlackboardKey();
         }
-
+        
         private void moveToBlackboardKey()
         {
             object target = Blackboard.Get(blackboardKey);
@@ -105,7 +108,7 @@ namespace NPBehave
 
             bool destinationChanged = (agent.destination - lastDestination).sqrMagnitude > (DESTINATION_CHANGE_THRESHOLD * DESTINATION_CHANGE_THRESHOLD); //(destination - agent.destination).sqrMagnitude > (DESTINATION_CHANGE_THRESHOLD * DESTINATION_CHANGE_THRESHOLD);
             bool distanceChanged = Mathf.Abs(agent.remainingDistance - lastDistance) > DESTINATION_CHANGE_THRESHOLD;
-
+            
             // check if we are already at our goal and stop the task
             if (lastDistance < this.tolerance)
             {

@@ -12,7 +12,7 @@ namespace NPBehave
         {
         }
 
-
+    
         protected override void DoStart()
         {
             foreach (Node child in Children)

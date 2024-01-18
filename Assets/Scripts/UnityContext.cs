@@ -5,9 +5,9 @@ namespace NPBehave
 {
     public class UnityContext : MonoBehaviour
     {
-        private static UnityContext instance = null;
+        static UnityContext instance = null;
 
-        private static UnityContext GetInstance()
+        static UnityContext GetInstance()
         {
             if (instance == null)
             {
@@ -37,9 +37,9 @@ namespace NPBehave
             return context.blackboards[key];
         }
 
-        private Dictionary<string, Blackboard> blackboards = new Dictionary<string, Blackboard>();
+        Dictionary<string, Blackboard> blackboards = new Dictionary<string, Blackboard>();
 
-        private Clock clock = new Clock();
+        Clock clock = new Clock();
 
         void Update()
         {

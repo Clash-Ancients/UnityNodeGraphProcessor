@@ -11,7 +11,7 @@ namespace NPBehave
             ONE,
             ALL,
         }
-
+        
         // public enum Wait
         // {
         //     NEVER,

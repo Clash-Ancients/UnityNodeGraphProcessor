@@ -102,7 +102,7 @@ namespace NPBehave
                 this.Stopped(result == Result.SUCCESS);
             }
         }
-
+        
         private void OnUpdateFunc2()
         {
             Result result = this.multiFrameFunc2.Invoke( bWasBlocked ? Request.START : Request.UPDATE);

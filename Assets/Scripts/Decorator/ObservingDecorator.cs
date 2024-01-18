@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-using System.Collections;
-using UnityEngine.Assertions;
+﻿using UnityEngine.Assertions;
 
 namespace NPBehave
 {

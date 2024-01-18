@@ -199,7 +199,7 @@ namespace NPBehave
             {
                 return;
             }
-
+            
             notificationsDispatch.Clear();
             notificationsDispatch.AddRange(notifications);
             foreach (Blackboard child in children)
@@ -207,17 +207,14 @@ namespace NPBehave
                 child.notifications.AddRange(notifications);
                 child.clock.AddTimer(0f, 0, child.NotifiyObservers);
             }
+            
             notifications.Clear();
-
             isNotifiyng = true;
             foreach (Notification notification in notificationsDispatch)
             {
                 if (!this.observers.ContainsKey(notification.key))
-                {
-                    //                Debug.Log("1 do not notify for key:" + notification.key + " value: " + notification.value);
                     continue;
-                }
-
+                
                 List<System.Action<Type, object>> observers = GetObserverList(this.observers, notification.key);
                 foreach (System.Action<Type, object> observer in observers)
                 {
@@ -233,6 +230,7 @@ namespace NPBehave
             {
                 GetObserverList(this.observers, key).AddRange(this.addObservers[key]);
             }
+            
             foreach (string key in this.removeObservers.Keys)
             {
                 foreach (System.Action<Type, object> action in removeObservers[key])
@@ -240,6 +238,7 @@ namespace NPBehave
                     GetObserverList(this.observers, key).Remove(action);
                 }
             }
+            
             this.addObservers.Clear();
             this.removeObservers.Clear();
 

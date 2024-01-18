@@ -70,7 +70,7 @@
             }
             Stopped(result);
         }
-
+        
         private void InvokeServiceMethodWithRandomVariation()
         {
             serviceMethod();
